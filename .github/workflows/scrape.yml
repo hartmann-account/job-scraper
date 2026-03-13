@@ -45,3 +45,25 @@ jobs:
             git commit -m "data: scrape + report $(date +%Y-%m)"
             git push
           fi
+
+      - name: Read report content
+        id: report
+        run: |
+          REPORT_FILE=$(ls -t output/report_*.md 2>/dev/null | head -1)
+          if [ -n "$REPORT_FILE" ]; then
+            echo "file=$REPORT_FILE" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Send report via email
+        if: steps.report.outputs.file != ''
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: w019cc7f.kasserver.com
+          server_port: 587
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: "Job-Markt Report — $(date +%Y-%m)"
+          to: jonas@hartmann.id
+          from: Job Scraper <${{ secrets.SMTP_USERNAME }}>
+          content_type: text/plain
+          body: file://${{ steps.report.outputs.file }}
