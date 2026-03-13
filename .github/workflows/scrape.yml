@@ -1,0 +1,47 @@
+name: Monthly Job Scraper
+
+on:
+  schedule:
+    # 1. des Monats um 09:00 UTC = 10:00 CET
+    - cron: "0 9 1 * *"
+  workflow_dispatch: # Manuell auslösbar
+
+permissions:
+  contents: write
+
+jobs:
+  scrape-and-report:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Volle Historie für Vormonatsvergleich
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run scraper
+        run: python main.py
+
+      - name: Generate report
+        run: python generate_report.py
+
+      - name: Commit and push results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add output/
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "data: scrape + report $(date +%Y-%m)"
+            git push
+          fi
