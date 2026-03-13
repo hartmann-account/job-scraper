@@ -1,0 +1,129 @@
+# ============================================================
+# Job Scraper Configuration
+# ============================================================
+# Passe diese Datei an deine Suchkriterien an.
+# Der Scraper läuft monatlich via GitHub Actions.
+# ============================================================
+
+# --- Suchbegriffe (werden auf alle Quellen angewendet) ---
+search_terms:
+  - "Analyst"
+  - "Associate"
+  - "Wealth Management"
+  - "Asset Management"
+  - "Portfolio Manager"
+  - "Compliance"
+  - "Risk"
+  - "Relationship Manager"
+  - "Private Banking"
+  - "Investment"
+  - "Advisory"
+  - "Forensic"
+  - "AML"
+  - "KYC"
+
+# --- Geografische Filter ---
+locations:
+  - "Zürich"
+  - "Zug"
+  - "Luzern"
+  - "Basel"
+  - "Bern"
+  - "Genf"
+  - "Liechtenstein"
+
+# --- Arbeit.swiss / job-room.ch ---
+arbeit_swiss:
+  enabled: true
+  base_url: "https://www.job-room.ch/api/jobAdvertisements/_search"
+  # ISCO-Berufscodes (optional, verfeinert Suche)
+  # 2411 = Wirtschaftsprüfer, 2412 = Finanzberater, 2413 = Finanzanalysten
+  profession_codes:
+    - "2411"
+    - "2412"
+    - "2413"
+
+# --- LinkedIn (öffentliche Guest-API, kein Login nötig) ---
+linkedin:
+  enabled: true
+  # GeoId für Schweiz = 106693272
+  geo_id: "106693272"
+  # Zeitfilter: r2592000 = letzte 30 Tage
+  time_filter: "r2592000"
+
+# --- Karriereseiten (erweiterbar) ---
+# Jede Seite braucht: name, url, und CSS-Selektoren
+career_pages:
+  enabled: true
+  companies:
+    - name: "UBS"
+      url: "https://jobs.ubs.com/TGnewUI/Search/Home/Home?partnerid=25008&siteid=5131#keyWordSearch=&locationSearch=Switzerland"
+      # Typ: api | html
+      type: "html"
+      selectors:
+        job_list: ".oMsgContainer"
+        title: ".jobTitle"
+        location: ".jobLocation"
+        link: ".jobTitle a"
+
+    - name: "Julius Bär"
+      url: "https://www.juliusbaer.com/en/careers/job-openings/"
+      type: "html"
+      selectors:
+        job_list: ".job-list-item"
+        title: ".job-title"
+        location: ".job-location"
+        link: "a"
+
+    - name: "Zürcher Kantonalbank"
+      url: "https://www.zkb.ch/de/ueber-uns/karriere/offene-stellen"
+      type: "html"
+      selectors:
+        job_list: ".job-item"
+        title: ".job-title"
+        location: ".job-location"
+        link: "a"
+
+    - name: "Lombard Odier"
+      url: "https://careers.lombardodier.com/search/"
+      type: "html"
+      selectors:
+        job_list: ".job-listing"
+        title: ".job-title"
+        location: ".job-location"
+        link: "a"
+
+    - name: "Pictet"
+      url: "https://career5.successfactors.eu/career?company=Pictet"
+      type: "html"
+      selectors:
+        job_list: ".jobResultItem"
+        title: ".jobTitle"
+        location: ".jobLocation"
+        link: ".jobTitle a"
+
+    - name: "Vontobel"
+      url: "https://www.vontobel.com/en-ch/careers/open-positions/"
+      type: "html"
+      selectors:
+        job_list: ".job-item"
+        title: ".job-title"
+        location: ".job-location"
+        link: "a"
+
+    # --- Füge weitere Unternehmen nach diesem Schema hinzu ---
+    # - name: "Firmenname"
+    #   url: "https://..."
+    #   type: "html"
+    #   selectors:
+    #     job_list: ".css-klasse"
+    #     title: ".css-klasse"
+    #     location: ".css-klasse"
+    #     link: "a"
+
+# --- Output-Konfiguration ---
+output:
+  format: "csv"  # csv oder xlsx
+  filename_prefix: "job_scrape"
+  # Ergebnisse werden in /output/ gespeichert
+  # Dateiname: job_scrape_YYYY-MM.csv
