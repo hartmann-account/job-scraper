@@ -43,10 +43,12 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "data: scrape + report $(date +%Y-%m)"
+            git pull --rebase
             git push
           fi
 
       - name: Read report content
+        if: always()
         id: report
         run: |
           REPORT_FILE=$(ls -t output/report_*.md 2>/dev/null | head -1)
@@ -55,7 +57,7 @@ jobs:
           fi
 
       - name: Send report via email
-        if: steps.report.outputs.file != ''
+        if: always() && steps.report.outputs.file != ''
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: w019cc7f.kasserver.com
